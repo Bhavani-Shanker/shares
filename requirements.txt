@@ -1,0 +1,11 @@
+pandas
+yfinance
+streamlit
+numpy
+datetime
+mplchart
+tradingview_ta
+openpyxl
+bs4
+requests
+plotly
