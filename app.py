@@ -211,10 +211,10 @@ with col1:
            
             col1, col2 = st.columns(2)
             with col1:
-                st.write(underline_text("Top Up Stocks:"), unsafe_allow_html=True)
+                st.write(underline_text(" Today Top Up Stocks:"), unsafe_allow_html=True)
                 st.write(UP_Stocks)
             with col2:
-                st.write(underline_text("Top Down Stocks:"), unsafe_allow_html=True)
+                st.write(underline_text(" Today Top Down Stocks:"), unsafe_allow_html=True)
                 st.write(Down_Stocks)
 
             
@@ -627,27 +627,19 @@ with col3:
              Resistance1, Resistance2, Resistance3, Resistance4, Resistance5,
              Support1, Support2, Support3, Support4, Support5) = Gann(Close)
 
+            st.write(underline_text(" Trading Recommendation:"), unsafe_allow_html=True)
+            message = f"""Buy at / above: {Buy_At:.2f}
+Targets: {Buy_Target1:.2f}, {Buy_Target2:.2f}, {Buy_Target3:.2f}, {Buy_Target4:.2f}
+
+STOPLOSS: {Sell_At:.2f}
+
+Sell at / below: {Sell_At:.2f}
+Targets: {Sell_target1:.2f}, {Sell_target2:.2f}, {Sell_target3:.2f}, {Sell_target4:.2f}
+
+STOPLOSS: {Buy_At:.2f}"""
             
-            st.write(underline_text("Trading Recommendations:"), unsafe_allow_html=True)
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown(f"""
-                **Buy Zone**  
-                Entry: {Buy_At:.2f}  
-                Targets:  
-                {Buy_Target1:.2f} | {Buy_Target2:.2f}  
-                {Buy_Target3:.2f} | {Buy_Target4:.2f}  
-                Stop Loss: {Sell_At:.2f}
-                """)
-            with col2:
-                st.markdown(f"""
-                **Sell Zone**  
-                Entry: {Sell_At:.2f}  
-                Targets:  
-                {Sell_target1:.2f} | {Sell_target2:.2f}  
-                {Sell_target3:.2f} | {Sell_target4:.2f}  
-                Stop Loss: {Buy_At:.2f}
-                """)
+            st.write(message)
+                
 
            
             st.write(underline_text("Key Levels:"), unsafe_allow_html=True)
