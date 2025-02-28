@@ -65,13 +65,14 @@ st.markdown(f'''
 ''', unsafe_allow_html=True)
 
 
-listTabs = ["Nifty Indices", "Stocks based on Category", "Stock Analysis"]
+listTabs = ["Nifty Indices", "Stocks based on Category", "Stock Analysis","Buy/Sell Recommandation"]
 whitespace = 9
-col1, col2, col3 = st.tabs([s.center(whitespace, "\u2001") for s in listTabs])
+col1, col2, col3, col4= st.tabs([s.center(whitespace, "\u2001") for s in listTabs])
+
 
 with col1:
     def main():
-        Index_df = pd.read_excel("Nifty_Index_List_V1.xlsx", sheet_name='UniqueIndices', engine='openpyxl')
+        Index_df = pd.read_excel("C:/Users/bhava/Downloads/Stocks-main/Stocks-main/Nifty_Index_List_V1.xlsx", sheet_name='UniqueIndices', engine='openpyxl')
         st.title("Nifty Index Analysis")
 
         Indices = list(Index_df['Indices'].unique())
@@ -85,9 +86,21 @@ with col1:
         if st.session_state.symbol:
             symbol = st.session_state.symbol
             ticker = yf.Ticker(symbol)
-            todays_data = ticker.history(period='1d')
-            Close = todays_data['Close'][0]
-            st.write("Last close price is:", np.round(Close, 2))
+            data = ticker.history(period='2d')  
+            if not data.empty and len(data) >= 2:
+                current_close = data['Close'].iloc[-1]
+                previous_close = data['Close'].iloc[-2]
+                close_price = np.round(current_close, 2)
+            
+                color = 'green' if current_close > previous_close else 'red'
+
+                st.markdown(
+                    f"Last close price is: <span style='color:{color};'>{close_price}</span>", 
+                    unsafe_allow_html=True
+                )
+            else:
+                st.write("Insufficient data to display price change.")
+    
 
             
             st.write(underline_text("Select Time Period:"), unsafe_allow_html=True)
@@ -159,7 +172,7 @@ with col1:
 
             st.plotly_chart(fig, use_container_width=True)
 
-            Buy_At, Sell_At, Buy_Target1, Buy_Target2, Buy_Target3, Buy_Target4, Sell_target1, Sell_target2, Sell_target3, Sell_target4, Resistance1, Resistance2, Resistance3, Resistance4, Resistance5, Support1, Support2, Support3, Support4, Support5 = Gann(Close)
+            Buy_At, Sell_At, Buy_Target1, Buy_Target2, Buy_Target3, Buy_Target4, Sell_target1, Sell_target2, Sell_target3, Sell_target4, Resistance1, Resistance2, Resistance3, Resistance4, Resistance5, Support1, Support2, Support3, Support4, Support5 = Gann(close_price)
 
             buy_above = Buy_At
             buy_targets = [Buy_Target1, Buy_Target2, Buy_Target3, Buy_Target4]
@@ -237,7 +250,7 @@ with col2:
         Final_df1 = pd.DataFrame(columns=['Symbol', 'Moving Averages', 'Oscillators', 'Final Recommendation', 'Interval'])
         Final_df = pd.DataFrame(columns=['Symbol', 'Moving Averages', 'Oscillators', 'Final Recommendation', 'Interval'])
         
-        Index_df = pd.read_excel("MC_General_Categories_Indices.xlsx", engine='openpyxl')
+        Index_df = pd.read_excel("C:/Users/bhava/Downloads/Stocks-main/Stocks-main/MC_General_Categories_Indices.xlsx", engine='openpyxl')
         
         st.title("Stock Analysis based on Category")
 
@@ -450,7 +463,7 @@ with col2:
                     st.error(f"Error fetching data for {interval_name}: {str(e)}")
 
             Final_df1.set_index('Interval', inplace=True)
-            st.dataframe(Final_df1.style.map(
+            st.dataframe(Final_df1.style.applymap(
                 lambda x: "color: green" if "BUY" in x.upper() 
                 else "color: red" if "SELL" in x.upper() 
                 else "color: orange"))
@@ -469,7 +482,7 @@ with col3:
         Final_df1 = pd.DataFrame(columns=['Symbol', 'Moving Averages', 'Oscillators', 'Final Recommendation', 'Interval'])
         Final_df = pd.DataFrame(columns=['Symbol', 'Moving Averages', 'Oscillators', 'Final Recommendation', 'Interval'])
 
-        Index_df = pd.read_excel("MC_General_Categories_Indices.xlsx", engine='openpyxl')
+        Index_df = pd.read_excel("C:/Users/bhava/Downloads/Stocks-main/Stocks-main/MC_General_Categories_Indices.xlsx", engine='openpyxl')
 
         st.title("Stock Analysis")
 
@@ -540,11 +553,26 @@ with col3:
             if df.empty:
                 st.error("No data available for selected period")
                 return
-                
+
             df = df.reset_index()
             df.rename(columns={'Datetime': 'Date'}, inplace=True)
-            Close = df['Close'].iloc[-1]
-            st.write(f"Last close price: {Close:.2f}")
+
+# Fetch last and previous trading session's close prices
+            current_close = df['Close'].iloc[-1]
+
+# Ensure we get the last valid trading day's close
+            previous_close = df['Close'].iloc[-2] if len(df) > 1 else current_close
+
+# Determine color based on price change
+            color = 'green' if current_close > previous_close else 'red'
+
+# Display colored price using Markdown
+            st.markdown(
+              f"Last close price: <span style='color:{color}; font-weight:bold;'>{current_close:.2f}</span>", 
+            unsafe_allow_html=True
+)
+
+
 
             
             df['VWAP'] = (df['Volume'] * (df['High'] + df['Low'] + df['Close']) / 3).cumsum() / df['Volume'].cumsum()
@@ -625,7 +653,7 @@ with col3:
              Buy_Target1, Buy_Target2, Buy_Target3, Buy_Target4,
              Sell_target1, Sell_target2, Sell_target3, Sell_target4,
              Resistance1, Resistance2, Resistance3, Resistance4, Resistance5,
-             Support1, Support2, Support3, Support4, Support5) = Gann(Close)
+             Support1, Support2, Support3, Support4, Support5) = Gann(current_close)
 
             st.write(underline_text(" Trading Recommendation:"), unsafe_allow_html=True)
             message = f"""Buy at / above: {Buy_At:.2f}
@@ -674,7 +702,7 @@ STOPLOSS: {Buy_At:.2f}"""
                     st.error(f"Error fetching data for {interval_name}: {str(e)}")
 
             Final_df1.set_index('Interval', inplace=True)
-            st.dataframe(Final_df1.style.map(
+            st.dataframe(Final_df1.style.applymap(
                 lambda x: "color: green" if "BUY" in x.upper() 
                 else "color: red" if "SELL" in x.upper() 
                 else "color: orange"))
@@ -684,6 +712,83 @@ STOPLOSS: {Buy_At:.2f}"""
                 'selector': 'th',
                 'props': [('background-color', '#4b77be'), ('color', 'white')]
             }]))
+
+    if __name__ == "__main__":
+        main()
+with col4:
+    def main():
+    
+        try:
+            Index_df = pd.read_excel("C:/Users/bhava/Downloads/Stocks-main/Stocks-main/Nifty_Index_List_V1.xlsx", sheet_name='Indices with Symbol', engine='openpyxl')
+        except Exception as e:
+            st.error(f"Error reading Excel file: {e}")
+            return
+
+        Stocks = Index_df[Index_df.Indices == 'NIFTY 100']['Symbol'].unique().tolist()
+
+    
+        intervals = [
+            (Interval.INTERVAL_15_MINUTES, '15 Days'),  
+            (Interval.INTERVAL_1_WEEK, '1 WEEK'),
+            (Interval.INTERVAL_1_MONTH, '1 MONTH')
+        ]
+
+        # Initialize an empty DataFrame
+        Final_df = pd.DataFrame(columns=['Symbol', '15 Days', '1 WEEK', '1 MONTH'])
+
+        for stock in Stocks:
+            try:
+                temp_df = pd.DataFrame(columns=['Symbol', 'Final Recommendation', 'Interval'])
+                
+                for interval, interval_name in intervals:
+                    try:
+                        handler = TA_Handler(symbol=stock, screener="india", exchange="NSE", interval=interval)
+                        analysis = handler.get_analysis()
+                        
+                        temp_df = pd.concat([
+                            temp_df, 
+                            pd.DataFrame([{
+                                'Symbol': stock,
+                                'Final Recommendation': analysis.summary['RECOMMENDATION'],
+                                'Interval': interval_name
+                            }])
+                        ], ignore_index=True)
+                    
+                    except Exception as e:
+                        print(f"Error fetching data for {stock} at {interval_name}: {e}")
+                
+
+                if not temp_df.empty:
+                    temp_df = temp_df.pivot(index="Symbol", columns="Interval", values="Final Recommendation").reset_index()
+                    Final_df = pd.concat([Final_df, temp_df], ignore_index=True)
+
+            except Exception as e:
+                print(f"Error processing stock {stock}: {e}")
+
+        if Final_df.empty:
+            return  
+
+        def assign_flag(row):
+            recommendations = row[['15 Days', '1 WEEK', '1 MONTH']].values
+            
+            buy_count = sum(rec in ["BUY", "STRONG_BUY"] for rec in recommendations)
+            sell_count = sum(rec in ["SELL", "STRONG_SELL"] for rec in recommendations)
+            
+            return "BUY" if buy_count > sell_count else "SELL"
+
+        Final_df['Flag'] = Final_df.apply(assign_flag, axis=1)
+
+    
+        buy_stocks = Final_df[Final_df['Flag'] == 'BUY']
+        sell_stocks = Final_df[Final_df['Flag'] == 'SELL']
+
+        if not buy_stocks.empty:
+            st.write("These are the stocks recommended to **BUY**:", unsafe_allow_html=True)
+            st.write(buy_stocks)
+
+        if not sell_stocks.empty:
+            st.write("These are the stocks recommended to **SELL**:", unsafe_allow_html=True)
+            st.write(sell_stocks)
 
     if __name__ == "__main__":
         main()
