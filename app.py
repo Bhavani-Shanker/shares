@@ -482,7 +482,7 @@ with col3:
         Final_df1 = pd.DataFrame(columns=['Symbol', 'Moving Averages', 'Oscillators', 'Final Recommendation', 'Interval'])
         Final_df = pd.DataFrame(columns=['Symbol', 'Moving Averages', 'Oscillators', 'Final Recommendation', 'Interval'])
 
-        Index_df = pd.read_excel("C:/Users/bhava/Downloads/Stocks-main/Stocks-main/MC_General_Categories_Indices.xlsx", engine='openpyxl')
+        Index_df = pd.read_excel("MC_General_Categories_Indices.xlsx", engine='openpyxl')
 
         st.title("Stock Analysis")
 
