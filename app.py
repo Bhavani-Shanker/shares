@@ -72,7 +72,7 @@ col1, col2, col3, col4= st.tabs([s.center(whitespace, "\u2001") for s in listTab
 
 with col1:
     def main():
-        Index_df = pd.read_excel("C:/Users/bhava/Downloads/Stocks-main/Stocks-main/Nifty_Index_List_V1.xlsx", sheet_name='UniqueIndices', engine='openpyxl')
+        Index_df = pd.read_excel("Nifty_Index_List_V1.xlsx", sheet_name='UniqueIndices', engine='openpyxl')
         st.title("Nifty Index Analysis")
 
         Indices = list(Index_df['Indices'].unique())
@@ -250,7 +250,7 @@ with col2:
         Final_df1 = pd.DataFrame(columns=['Symbol', 'Moving Averages', 'Oscillators', 'Final Recommendation', 'Interval'])
         Final_df = pd.DataFrame(columns=['Symbol', 'Moving Averages', 'Oscillators', 'Final Recommendation', 'Interval'])
         
-        Index_df = pd.read_excel("C:/Users/bhava/Downloads/Stocks-main/Stocks-main/MC_General_Categories_Indices.xlsx", engine='openpyxl')
+        Index_df = pd.read_excel("MC_General_Categories_Indices.xlsx", engine='openpyxl')
         
         st.title("Stock Analysis based on Category")
 
@@ -719,7 +719,7 @@ with col4:
     def main():
     
         try:
-            Index_df = pd.read_excel("C:/Users/bhava/Downloads/Stocks-main/Stocks-main/Nifty_Index_List_V1.xlsx", sheet_name='Indices with Symbol', engine='openpyxl')
+            Index_df = pd.read_excel("Nifty_Index_List_V1.xlsx", sheet_name='Indices with Symbol', engine='openpyxl')
         except Exception as e:
             st.error(f"Error reading Excel file: {e}")
             return
